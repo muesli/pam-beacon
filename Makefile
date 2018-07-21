@@ -9,7 +9,7 @@ deps:
 build:
 	go build -buildmode=c-shared -o pam_beacon.so
 
-install: build
+install:
 	cp pam_beacon.so /usr/lib/security/
 
 test:
