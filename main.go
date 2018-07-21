@@ -188,7 +188,11 @@ func setCred(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 // main is for testing purposes only, the PAM module has to be built with:
 // go build -buildmode=c-shared
 func main() {
-	if !findDevice(beaconAddress) {
+	if len(os.Args) < 2 {
+		fmt.Println("usage: pam-beacon <mac-addr>")
+		os.Exit(2)
+	}
+	if !findDevice(os.Args[1]) {
 		os.Exit(1)
 	}
 }
