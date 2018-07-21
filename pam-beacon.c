@@ -5,8 +5,8 @@
 
 #define PAM_SM_AUTH
 #define PAM_SM_PASSWORD
-#include <security/pam_modules.h>
 #include <security/pam_appl.h>
+#include <security/pam_modules.h>
 
 GoSlice argcvToSlice(int, const char**);
 
