@@ -3,8 +3,10 @@ COMMIT_SHA := $(shell git rev-parse --short HEAD)
 
 all: build
 
+deps:
+	go get -u -v
+
 build:
-	# go get -uv
 	go build -buildmode=c-shared -o pam_beacon.so
 
 install: build
@@ -16,4 +18,4 @@ test:
 fmt:
 	go fmt ./... -v
 
-.PHONY: install test fmt
+.PHONY: deps build install test fmt
