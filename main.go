@@ -8,6 +8,7 @@ import "C"
 import (
 	"fmt"
 	"os"
+	"strings"
 	"time"
 	"unsafe"
 
@@ -18,11 +19,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var beaconCh = make(chan (string))
+var (
+	logLevel = log.InfoLevel
+	beaconCh = make(chan (string))
+)
 
-const adapterID = "hci0"
-const timeout = 5 * time.Second
-const logLevel = log.DebugLevel
+const (
+	adapterID = "hci0"
+	timeout   = 5 * time.Second
+)
 
 func logError(args ...interface{}) {
 	log.Error(args...)
@@ -124,7 +129,7 @@ func watchDevice(dev api.Device, beacon string) {
 		if changed.Properties.Address != beacon {
 			return
 		}
-		log.Debugf("%s: %d %s %+v\n", changed.Properties.Name, changed.Properties.RSSI, changed.Field, changed.Value)
+		log.Debugf("%s: %d %s %+v", changed.Properties.Name, changed.Properties.RSSI, changed.Field, changed.Value)
 		if (changed.Field == "RSSI" && changed.Value.(int16) != 0) ||
 			(changed.Field == "Connected" && changed.Value.(bool)) {
 			beaconCh <- changed.Properties.Address
@@ -138,24 +143,28 @@ func watchDevice(dev api.Device, beacon string) {
 
 //export goAuthenticate
 func goAuthenticate(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
+	for _, arg := range argv {
+		if strings.ToLower(arg) == "debug" {
+			logLevel = log.DebugLevel
+		}
+	}
 	log.SetLevel(logLevel)
-
-	hdl := pam.Handle{unsafe.Pointer(handle)}
 	log.Debugf("argv: %+v", argv)
 
+	hdl := pam.Handle{unsafe.Pointer(handle)}
 	username, err := hdl.GetUser()
 	if err != nil {
 		return C.PAM_AUTH_ERR
 	}
-
 	addrs, err := readUserConfig(username)
 	if err != nil {
 		return C.PAM_USER_UNKNOWN
 	}
 
-	if !findDevice(addrs[0]) {
-		return C.PAM_AUTH_ERR
+	if findDevice(addrs[0]) {
+		return C.PAM_SUCCESS
 	}
+	return C.PAM_AUTH_ERR
 
 	/*
 		cmd := exec.Command("dbus-send", "--system", "--dest=org.bluez", "--print-reply", "/org/bluez/hci0", "org.freedesktop.DBus.Properties.Set", "string:org.bluez.Adapter1", "string", ":Discoverable", "variant:boolean:true")
@@ -176,8 +185,6 @@ func goAuthenticate(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 		}
 		return C.PAM_SUCCESS
 	*/
-
-	return C.PAM_SUCCESS
 }
 
 //export setCred
@@ -188,6 +195,9 @@ func setCred(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 // main is for testing purposes only, the PAM module has to be built with:
 // go build -buildmode=c-shared
 func main() {
+	logLevel = log.DebugLevel
+	log.SetLevel(logLevel)
+
 	if len(os.Args) < 2 {
 		fmt.Println("usage: pam-beacon <mac-addr>")
 		os.Exit(2)

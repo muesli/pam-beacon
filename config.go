@@ -22,6 +22,7 @@ func homeDir(username string) (string, error) {
 
 func readAddresses(f string) ([]string, error) {
 	log.Debugf("Parsing MAC addresses from %s", f)
+
 	var ss []string
 	file, err := os.Open(f)
 	if err != nil {
