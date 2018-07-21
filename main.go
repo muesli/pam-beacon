@@ -20,8 +20,6 @@ import (
 
 var beaconCh = make(chan (string))
 
-const username = "muesli"
-const beaconAddress = "mac:addr"
 const adapterID = "hci0"
 const timeout = 5 * time.Second
 const logLevel = log.DebugLevel
@@ -43,6 +41,8 @@ func printEnv() {
 }
 
 func findDevice(address string) bool {
+	log.Debugf("Looking for beacon %s...", address)
+
 	a := linux.NewBtMgmt(adapterID)
 	err := a.SetPowered(true)
 	if err != nil {
@@ -143,14 +143,18 @@ func goAuthenticate(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 	hdl := pam.Handle{unsafe.Pointer(handle)}
 	log.Debugf("argv: %+v", argv)
 
-	usr, err := hdl.GetUser()
+	username, err := hdl.GetUser()
 	if err != nil {
 		return C.PAM_AUTH_ERR
 	}
 
-	log.Debugf("User: %s", usr)
-	if usr != username {
+	addrs, err := readUserConfig(username)
+	if err != nil {
 		return C.PAM_USER_UNKNOWN
+	}
+
+	if !findDevice(addrs[0]) {
+		return C.PAM_AUTH_ERR
 	}
 
 	/*
@@ -172,10 +176,6 @@ func goAuthenticate(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 		}
 		return C.PAM_SUCCESS
 	*/
-
-	if !findDevice(beaconAddress) {
-		return C.PAM_AUTH_ERR
-	}
 
 	return C.PAM_SUCCESS
 }
