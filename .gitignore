@@ -12,4 +12,4 @@
 *.out
 
 pam-beacon
-pam-beacon.h
+pam_beacon.h
