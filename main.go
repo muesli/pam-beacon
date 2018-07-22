@@ -45,6 +45,11 @@ func printEnv() {
 	}
 }
 
+func closeBluetooth() {
+	api.StopDiscovery()
+	api.Exit()
+}
+
 func findDevice(address string) bool {
 	log.Debugf("Looking for beacon %s...", address)
 
@@ -55,7 +60,7 @@ func findDevice(address string) bool {
 		return false
 	}
 
-	defer api.Exit()
+	defer closeBluetooth()
 	go discoverDevices(address)
 
 	select {
@@ -67,26 +72,36 @@ func findDevice(address string) bool {
 	}
 }
 
-func discoverDevices(beacon string) {
+func monitorCachedDevices(beacon string) bool {
 	devices, err := api.GetDevices()
 	if err != nil {
 		logError(err)
-		return
+		return false
 	}
 
 	log.Debugf("Cached devices:")
 	for _, dev := range devices {
-		showDeviceInfo(dev, beacon)
+		if checkDevice(dev, beacon) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func discoverDevices(beacon string) {
+	if monitorCachedDevices(beacon) {
+		return
 	}
 
 	log.Debugf("Discovered devices:")
 	api.StopDiscovery()
 	time.Sleep(500 * time.Millisecond)
 
-	err = api.On("discovery", emitter.NewCallback(func(ev emitter.Event) {
+	err := api.On("discovery", emitter.NewCallback(func(ev emitter.Event) {
 		discoveryEvent := ev.GetData().(api.DiscoveredDeviceEvent)
 		dev := discoveryEvent.Device
-		showDeviceInfo(*dev, beacon)
+		checkDevice(*dev, beacon)
 	}))
 	if err != nil {
 		logError(err)
@@ -100,25 +115,26 @@ func discoverDevices(beacon string) {
 	}
 }
 
-func showDeviceInfo(dev api.Device, beacon string) {
+func checkDevice(dev api.Device, beacon string) bool {
 	props, err := dev.GetProperties()
 	if err != nil {
 		logErrorf("%s: Failed to get properties: %s", dev.Path, err.Error())
-		return
+		return false
 	}
 	log.Debugf("name=%s addr=%s rssi=%d trusted=%t tx=%d connected=%t",
 		props.Name, props.Address, props.RSSI, props.Trusted, props.TxPower, props.Connected)
 
 	if props.Address != beacon {
-		return
+		return false
 	}
 
 	if props.Connected || props.RSSI != 0 {
 		beaconCh <- props.Address
-		return
+		return true
 	}
 
 	watchDevice(dev, beacon)
+	return false
 }
 
 func watchDevice(dev api.Device, beacon string) {
@@ -151,7 +167,7 @@ func goAuthenticate(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 	log.SetLevel(logLevel)
 	log.Debugf("argv: %+v", argv)
 
-	hdl := pam.Handle{unsafe.Pointer(handle)}
+	hdl := pam.Handle{Ptr: unsafe.Pointer(handle)}
 	username, err := hdl.GetUser()
 	if err != nil {
 		return C.PAM_AUTH_ERR
