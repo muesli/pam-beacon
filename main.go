@@ -12,7 +12,7 @@ import (
 	"time"
 	"unsafe"
 
-	"darkdna.net/pam"
+	"github.com/muesli/go-pam"
 	"github.com/muka/go-bluetooth/api"
 	"github.com/muka/go-bluetooth/emitter"
 	"github.com/muka/go-bluetooth/linux"
