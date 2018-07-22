@@ -9,6 +9,7 @@ See the [install instructions](http://golang.org/doc/install.html).
 `libpam` and its development headers are also required.
 
 ```
+$ make deps
 $ make
 $ sudo make install
 ```
