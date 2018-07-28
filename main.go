@@ -26,7 +26,7 @@ var (
 
 const (
 	adapterID = "hci0"
-	timeout   = 5 * time.Second
+	timeout   = 10 * time.Second
 )
 
 func logError(args ...interface{}) {
@@ -95,8 +95,9 @@ func discoverDevices(beacon string) {
 	}
 
 	log.Debugf("Discovered devices:")
+
 	api.StopDiscovery()
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(100 * time.Millisecond)
 
 	err := api.On("discovery", emitter.NewCallback(func(ev emitter.Event) {
 		discoveryEvent := ev.GetData().(api.DiscoveredDeviceEvent)
