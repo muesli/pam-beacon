@@ -15,7 +15,7 @@ import (
 	"github.com/muesli/go-pam"
 	"github.com/muka/go-bluetooth/api"
 	"github.com/muka/go-bluetooth/emitter"
-	"github.com/muka/go-bluetooth/linux"
+	"github.com/muka/go-bluetooth/linux/btmgmt"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -53,7 +53,7 @@ func closeBluetooth() {
 func findDevice(address string) bool {
 	log.Debugf("Looking for beacon %s...", address)
 
-	a := linux.NewBtMgmt(adapterID)
+	a := btmgmt.NewBtMgmt(adapterID)
 	err := a.SetPowered(true)
 	if err != nil {
 		logError(err)
