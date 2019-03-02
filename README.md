@@ -10,7 +10,7 @@ ArchLinux: install the AUR package `pam_beacon-git`.
 
 ### Manually
 
-Make sure you have a working Go environment (Go 1.7 or higher is required).
+Make sure you have a working Go environment (Go 1.9 or higher is required).
 See the [install instructions](http://golang.org/doc/install.html).
 `libpam` and its development headers are also required.
 
