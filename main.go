@@ -8,6 +8,7 @@ import "C"
 import (
 	"fmt"
 	"os"
+	"os/user"
 	"strings"
 	"time"
 	"unsafe"
@@ -175,7 +176,13 @@ func goAuthenticate(handle *C.pam_handle_t, flags C.int, argv []string) C.int {
 	}
 	addrs, err := readUserConfig(username)
 	if err != nil {
-		return C.PAM_USER_UNKNOWN
+		logError(err)
+		switch err.(type) {
+		case user.UnknownUserError:
+			return C.PAM_USER_UNKNOWN
+		default:
+			return C.PAM_AUTHINFO_UNAVAIL
+		}
 	}
 
 	if findDevice(addrs[0]) {
