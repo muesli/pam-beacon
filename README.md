@@ -1,5 +1,9 @@
 # pam-beacon
 
+[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/muesli/pam-beacon)
+[![Build Status](https://travis-ci.org/muesli/pam-beacon.svg?branch=master)](https://travis-ci.org/muesli/pam-beacon)
+[![Go ReportCard](https://goreportcard.com/badge/muesli/pam-beacon)](https://goreportcard.com/report/muesli/pam-beacon)
+
 PAM module for (multi-factor) authentication with Bluetooth Devices & Beacons
 
 ## Installation
@@ -10,23 +14,26 @@ ArchLinux: install the AUR package `pam_beacon-git`.
 
 ### Manually
 
-Make sure you have a working Go environment (Go 1.9 or higher is required).
+Make sure you have a working Go environment (Go 1.11 or higher is required).
 See the [install instructions](http://golang.org/doc/install.html).
 `libpam` and its development headers are also required.
 
 ```
-$ make deps
 $ make
 $ sudo make install
 ```
 
 ## Configuration
 
-Create a file named `.authorized_beacons` in your home directory. Put a single
-line with the beacon's MAC address in it. For example:
+Create a file named `.authorized_beacons` in your home directory. You can put
+the MAC addresses of as many beacons in it as you like, one per line. The auth
+will succeed as long as `pam-beacon` can find at least one of the beacons.
+
+Example:
 
 ```
 00:11:22:AA:BB:CC
+FF:EE:DD:99:88:77
 ```
 
 Copy `config/pam.d/system-auth-beacon` to `/etc/pam.d`. Include this PAM module
@@ -40,9 +47,3 @@ auth    include     system-auth-beacon
 Careful: if your bluetooth beacon isn't discoverable, you will lock yourself out
 of your system! It's probably a good idea to keep a root-shell open during
 installation & testing of `pam-beacon`.
-
-## Development
-
-[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/muesli/pam-beacon)
-[![Build Status](https://travis-ci.org/muesli/pam-beacon.svg?branch=master)](https://travis-ci.org/muesli/pam-beacon)
-[![Go ReportCard](http://goreportcard.com/badge/muesli/pam-beacon)](http://goreportcard.com/report/muesli/pam-beacon)
