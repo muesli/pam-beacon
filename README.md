@@ -1,8 +1,9 @@
 # pam-beacon
 
-[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://godoc.org/github.com/muesli/pam-beacon)
-[![Build Status](https://travis-ci.org/muesli/pam-beacon.svg?branch=master)](https://travis-ci.org/muesli/pam-beacon)
+[![Latest Release](https://img.shields.io/github/release/muesli/pam-beacon.svg)](https://github.com/muesli/pam-beacon/releases)
+[![Build Status](https://github.com/muesli/pam-beacon/workflows/build/badge.svg)](https://github.com/muesli/pam-beacon/actions)
 [![Go ReportCard](https://goreportcard.com/badge/muesli/pam-beacon)](https://goreportcard.com/report/muesli/pam-beacon)
+[![GoDoc](https://godoc.org/github.com/golang/gddo?status.svg)](https://pkg.go.dev/github.com/muesli/pam-beacon)
 
 PAM module for (multi-factor) authentication with Bluetooth Devices & Beacons
 
