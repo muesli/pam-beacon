@@ -11,6 +11,10 @@ jobs:
     env:
       GO111MODULE: "on"
     steps:
+      - name: Install Dependencies
+        run: |
+          sudo apt -q update
+          sudo apt install -q -y libpam-dev
       - name: Install Go
         uses: actions/setup-go@v2
         with:
