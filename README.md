@@ -48,3 +48,15 @@ auth    include     system-auth-beacon
 Careful: if your bluetooth beacon isn't discoverable, you will lock yourself out
 of your system! It's probably a good idea to keep a root-shell open during
 installation & testing of `pam-beacon`.
+
+## Testing
+
+You can run pam-beacon as an application to test its behavior:
+
+```
+$ go build
+$ ./pam-beacon [mac]
+```
+
+This will return successfully if pam-beacon managed to find & connect to your
+bluetooth beacon, or return an error if it encounters any problems.
