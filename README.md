@@ -23,6 +23,10 @@ See the [install instructions](http://golang.org/doc/install.html).
 $ make
 $ sudo make install
 ```
+If you are installing into an Ubuntu-family Linux distribution, you will likely need override the INSTALLATION_BASE variable in the Makefile:
+```
+$ sudo make install INSTALL_BASE=/usr/lib/x86_64-linux-gnu
+```
 
 ## Configuration
 
